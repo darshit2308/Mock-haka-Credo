@@ -156,17 +156,14 @@ The following screenshots show the system running end-to-end on a real GitHub re
 
 > A PR opened by a contributor who has not onboarded with Heka receives an automatic failure check.
 
-*(Insert screenshot of red ❌ check on PR here)*
 ![alt text](image.png)
-<!-- ![alt text](image-1.png) -->
 
 ### Verified Contributor — PR Approved ✅
 
 > After onboarding, the contributor's DID appears in the PR check summary.
 
-*(Insert screenshot of green ✅ check with DID shown on PR here)*
 
-![alt text](image-2.png)
+![alt text](image-3.png)
 
 ---
 
