@@ -368,10 +368,19 @@ function setupRoutes(agent: Agent, issuerDid: string) {
    * The GitHub App uses this response to post a pass/fail Check on the PR.
    */
   app.post('/verify', async (req, res) => {
-    const { github_username } = req.body
+    // 1. Handle GitHub's initial "ping" event when you first create the webhook
+    if (req.body.zen) {
+      console.log(`👋 GitHub Webhook Ping received!`)
+      return res.status(200).json({ message: 'Ping successful' })
+    }
+
+    // 2. Extract the username. 
+    // It will look for 'github_username' first (for local testing).
+    // If it's not there, it looks inside GitHub's 'sender.login' object.
+    const github_username = req.body.github_username || req.body.sender?.login
 
     if (!github_username) {
-      return res.status(400).json({ error: 'github_username is required' })
+      return res.status(400).json({ error: 'Could not find a username in the payload' })
     }
 
     console.log(`\n🔍 Verifying credential for: @${github_username}`)
@@ -379,20 +388,13 @@ function setupRoutes(agent: Agent, issuerDid: string) {
     // Look up the contributor's credential in the mock cloud wallet
     const userRecord = identityStore[github_username]
     if (!userRecord) {
-      // Not a server error — the user simply hasn't onboarded yet
       return res.status(404).json({
         isValid: false,
-        error: 'No credential found. This contributor needs to onboard via the Heka portal first.',
+        error: `No credential found for @${github_username}. They need to onboard first.`,
       })
     }
 
     try {
-      // Cryptographically verify the JWT signature using Credo's engine.
-      // Credo resolves the issuer DID from the VC, fetches the public key from the
-      // DID Document, and checks the EdDSA signature. This cannot be forged.
-      // 
-      // userRecord.vc is typed as W3cJwtVerifiableCredential (the signed JWT form).
-      // Do NOT cast this to W3cCredential (unsigned) — that breaks verification.
       const verificationResult = await agent.w3cCredentials.verifyCredential({
         credential: userRecord.vc,
       })
