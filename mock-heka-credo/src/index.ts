@@ -205,14 +205,6 @@ function setupRoutes(agent: Agent, issuerDid: string) {
       })
     }
 
-    // Now we check, if the decrypted message was equal to nonce
-    if (pendingChallenge.nonce != decrypted_challenge) {
-      return res.status(401).json({
-        error: 'Invalid challenge response. Decryption failed, or the decrypted message was wrong'
-      })
-    }
-    delete challengeStore[github_username]
-    console.log(`GPG authentication successfull for @${github_username} `)
 
     if (identityStore[github_username]) {
       delete challengeStore[github_username] // clean up the used challenge
@@ -322,8 +314,12 @@ function setupRoutes(agent: Agent, issuerDid: string) {
           issuanceDate: new Date().toISOString(),
           credentialSubject: new W3cCredentialSubject({
             id: userDid,
-            github_username,
-            is_verified: true,
+            // Credo-ts expects custom claims to go inside a 'claims' object
+            // to survive the JWT serialisation and properly map to the subject.
+            claims: {
+              github_username: github_username,
+              is_verified: true
+            }
           }),
         }),
         verificationMethod,
