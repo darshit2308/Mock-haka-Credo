@@ -17,10 +17,6 @@ _A working prototype built for the [LF Decentralized Trust Mentorship Program â€
 
 <br/>
 
-> **"Every commit tells a story. But who is really telling it?"**
->
-> This prototype answers that question â€” cryptographically.
-
 </div>
 
 ---
