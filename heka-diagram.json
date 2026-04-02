@@ -1,0 +1,12 @@
+flowchart LR
+
+A[Contributor (GitHub)\nSigns with GPG] -->|GET /challenge| B[mock-heka-credo]
+B -->|nonce| A
+A -->|POST /onboard| B
+B -->|VC + DID issued| A
+
+A -->|Opens PR| C[GitHub Repo]
+
+C -->|webhook| D[mock-heka-bot (Probot)]
+D -->|POST /verify| B
+D -->|Valid / Invalid| C
