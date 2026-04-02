@@ -595,22 +595,66 @@ against issuer's public key resolved from DID Document
 
 This prototype deliberately simplifies certain components to focus on proving the hardest architectural pieces first. Here is an honest breakdown:
 
-| Feature              | MVP (This Prototype)                  | Production                                                            |
-| -------------------- | ------------------------------------- | --------------------------------------------------------------------- |
-| **DID Method**       | `did:key` (local, no ledger)          | `did:hedera` anchored on Hedera Testnet/Mainnet                       |
-| **Identity Storage** | ✅ **SQLite embedded database**       | Persistent PostgreSQL or Hedera Smart Contract                        |
-| **Onboarding UI**    | ✅ **React Web Console**              | OAuth-integrated web dashboard with advanced UX                       |
-| **Onboarding Auth**  | ✅ GPG sign/verify challenge-response | Same — plus key rotation and revocation handling                      |
-| **VC Format**        | W3C JWT VC                            | SD-JWT (Selective Disclosure JWT) for privacy-preserving presentation |
-| **Wallet**           | Askar in-process                      | Full Heka Identity Platform cloud wallet                              |
-| **Verification**     | VC signature check                    | Linked VP from contributor DID Document (Option 1 in issue)           |
-| **GitHub App**       | ✅ Checks API enforcement             | Full status checks + PR comments + repo-specific configuration        |
+| Feature              | MVP (This Prototype)                             | Production                                                     |
+| -------------------- | ------------------------------------------------ | -------------------------------------------------------------- |
+| **DID Method**       | `did:key` (local, no ledger)                     | `did:hedera` anchored on Hedera Testnet/Mainnet                |
+| **Identity Storage** | ✅ SQLite registry for challenges and issued VCs | Persistent wallet-backed storage / registry model              |
+| **Onboarding UI**    | ✅ **React Web Console**                         | GitHub OAuth-integrated contributor portal                     |
+| **Onboarding Auth**  | ✅ GPG sign/verify challenge-response            | Same — plus key rotation, revocation, and wallet linkage       |
+| **VC Format**        | W3C JWT VC                                       | SD-JWT VC for privacy-preserving presentation                  |
+| **Wallet**           | Server-side Askar wallet for issuer keys only    | Contributor-owned cloud wallet with VC custody                 |
+| **Verification**     | VC signature check through backend registry      | Linked VP from contributor wallet / DID Document               |
+| **GitHub App**       | ✅ Checks API enforcement                        | Full status checks + PR comments + repo-specific configuration |
+
+### What Is Not Done Yet
+
+The items below are **not implemented in the current prototype**. They are the gap between the MVP I have now and the mentorship issue's longer-term target.
+
+| Not Done Yet                     | Current State                                         | What the Mentorship Target Wants                                                   |
+| -------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| GitHub OAuth login               | Contributors do not sign in with GitHub through OAuth | A GitHub-authenticated onboarding entry point in the Heka Web UI                   |
+| Contributor cloud wallet         | No contributor-owned wallet is created or managed     | Heka creates a cloud wallet for each contributor                                   |
+| VC custody in contributor wallet | Credentials are stored server-side in SQLite          | VC is issued into the contributor wallet, not kept as the server’s source of truth |
+| OID4VCI issuance flow            | Not implemented                                       | Standards-based credential issuance into the contributor wallet                    |
+| OID4VP presentation flow         | Not implemented                                       | The contributor wallet presents a Verifiable Presentation to the verifier          |
+| Linked VP in DID Document        | Not implemented                                       | A linked VP can be used to simplify verification                                   |
+| Hedera DID anchoring             | Not implemented                                       | `did:hedera` anchored on Hedera Testnet/Mainnet                                    |
+| SD-JWT VC format                 | Not implemented                                       | Privacy-preserving SD-JWT VC presentation                                          |
+| VC revocation registry           | Not implemented                                       | A revocation mechanism for invalid or compromised credentials                      |
+| Credential lifecycle management  | Not implemented                                       | Rotation, revocation, and lifecycle policies                                       |
+| Repository-specific policies     | Not implemented                                       | Per-repository verification settings and enforcement controls                      |
+| Warn-only mode                   | Not implemented                                       | Maintainable policy modes such as warn-only vs blocking                            |
+| Production admin dashboard       | Not implemented                                       | Full OAuth-backed admin and contributor dashboard                                  |
+| Self-sovereign wallet custody    | Not implemented                                       | Contributor-controlled identity and credential custody                             |
+
+---
+
+## 🚧 Explicit Prototype Boundaries
+
+To avoid any ambiguity, this repository currently proves the following only:
+
+1. A contributor can request a nonce from the backend.
+2. The contributor can sign that nonce with a GitHub-linked GPG key.
+3. The backend can verify the signature.
+4. The backend can issue a Verifiable Credential.
+5. The backend can store and later re-read that credential from SQLite.
+6. The GitHub App can verify that stored credential and post a PR check result.
+
+It does **not** yet prove the mentorship target's full self-sovereign wallet model. In particular, it does not yet:
+
+1. Log the contributor in with GitHub OAuth.
+2. Create a contributor-owned cloud wallet.
+3. Issue the VC directly into that wallet.
+4. Use OID4VCI or OID4VP end to end.
+5. Use `did:hedera` for issuer / contributor DIDs.
+6. Use a linked VP flow for pull request verification.
+7. Provide revocation, rotation, or repository-level policy configuration.
 
 ---
 
 ## 🔭 Next Priority: `did:hedera` Mainnet Integration
 
-The following roadmap items represent the next phase of development beyond the current MVP:
+The following roadmap items represent the next phase of development beyond the current MVP. They are intentionally **not done yet** in this repository:
 
 1. **`did:hedera` Testnet Anchor** (🎯 **Next Major Milestone**)
    - Replace `did:key` with `did:hedera` using `@hashgraph/did-sdk`
