@@ -15,7 +15,7 @@ _A working prototype built for the [LF Decentralized Trust Mentorship Program â€
 ![GPG](https://img.shields.io/badge/Auth-GPG_Sign%2FVerify-4A90D9?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)
 
-<br/>
+<br/> 
 
 </div>
 
